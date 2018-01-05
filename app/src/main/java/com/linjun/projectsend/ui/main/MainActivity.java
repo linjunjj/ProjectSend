@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-
+        initLocation();
 
     }
 
@@ -51,6 +51,7 @@ public class MainActivity extends BaseActivity {
             case R.id.btn_start:
                 break;
             case R.id.btn_location:
+                startLocation();
                 break;
         }
     }
