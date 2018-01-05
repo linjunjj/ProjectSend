@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import com.linjun.projectsend.R;
 import com.linjun.projectsend.ui.base.BaseActivity;
+import com.linjun.projectsend.ui.main.MainActivity;
+import com.linjun.projectsend.utils.ActionUtils;
 
 import butterknife.BindView;
 
@@ -31,12 +33,21 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void initView() {
         setFullScreen();
+     new Handler().postDelayed(new Runnable() {
+         @Override
+         public void run() {
+             ActionUtils.actionStart(SplashActivity.this, MainActivity.class);
+         }
+     },2000);
+     this.finish();
+
     }
 
     private void setFullScreen() {
         int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
         Window window = SplashActivity.this.getWindow();
         window.setFlags(flag, flag);
+        conversion();
 
     }
     private void conversion() {
@@ -46,7 +57,7 @@ public class SplashActivity extends BaseActivity {
               splLogo.setVisibility(View.GONE);
               splContent.setVisibility(View.VISIBLE);
             }
-        },200);
+        },1000);
     }
 
 
