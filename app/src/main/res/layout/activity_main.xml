@@ -8,20 +8,24 @@
     tools:context="com.linjun.projectsend.ui.main.MainActivity"
     android:orientation="vertical">
 
-
+    <com.amap.api.maps.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="350dp" >
+    </com.amap.api.maps.MapView>
     <View
-        android:layout_marginTop="380dp"
+        android:layout_marginTop="1dp"
         android:background="@color/line"
         android:layout_width="match_parent"
         android:layout_height="3dp"></View>
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+       android:paddingBottom="10dp">
         <Button
             android:layout_marginLeft="20dp"
             android:layout_marginRight="15dp"
-            android:id="@+id/btn_adduer"
+            android:id="@+id/btn_start"
             android:layout_marginTop="30dp"
             android:textSize="22sp"
             android:textColor="@color/white"
@@ -33,7 +37,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:id="@+id/btn_adduers"
+            android:id="@+id/btn_location"
             android:layout_marginTop="30dp"
             android:textSize="22sp"
             android:textColor="@color/white"
@@ -42,8 +46,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
-
-
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </ScrollView>
 
 </LinearLayout>
