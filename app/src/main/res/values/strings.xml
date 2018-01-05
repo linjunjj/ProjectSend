@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">ProjectSend</string>
+    <string name="app_name">疲劳驾驶检测客户端</string>
+    <string name="conpany">江西科技学院信息研究所</string>
 </resources>
