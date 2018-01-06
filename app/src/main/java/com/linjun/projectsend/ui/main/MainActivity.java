@@ -30,7 +30,7 @@ public class MainActivity extends BaseActivity {
     Button btnLocation;
     @BindView(R.id.tv_result)
     TextView tvResult;
-
+//
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
 
