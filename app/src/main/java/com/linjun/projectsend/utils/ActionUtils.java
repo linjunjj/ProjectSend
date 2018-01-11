@@ -11,7 +11,7 @@ import android.support.v4.app.FragmentActivity;
  */
 
 public class ActionUtils {
-//    
+//
     private static Intent intent;
 
     public  static  void actionStart(Context context, Class<?> activityClass){
