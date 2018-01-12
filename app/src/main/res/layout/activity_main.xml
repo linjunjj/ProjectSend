@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,25 +8,48 @@
     tools:context="com.linjun.projectsend.ui.main.MainActivity"
     android:orientation="vertical">
 
-    <com.amap.api.maps.MapView
-        android:id="@+id/map"
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="500dp">
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="350dp" >
-    </com.amap.api.maps.MapView>
-    <View
-        android:layout_marginTop="1dp"
-        android:background="@color/line"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"></View>
-    <RelativeLayout
+        android:layout_height="200dp"
+
+        android:layout_marginBottom="60dp">
+
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </ScrollView>
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-       android:paddingBottom="10dp">
+        android:overScrollMode="never"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <com.linjun.projectsend.view.LineChartView
+                android:id="@+id/line_chart_view"
+                android:layout_width="wrap_content"
+                android:layout_height="250dp"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>
+
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp">
         <Button
             android:layout_marginLeft="20dp"
             android:layout_marginRight="15dp"
             android:id="@+id/btn_start"
-            android:layout_marginTop="30dp"
             android:textSize="22sp"
             android:textColor="@color/white"
             android:text="启动"
@@ -38,7 +61,6 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:id="@+id/btn_location"
-            android:layout_marginTop="30dp"
             android:textSize="22sp"
             android:textColor="@color/white"
             android:text="定位"
@@ -46,15 +68,4 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <TextView
-            android:id="@+id/tv_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </ScrollView>
-
-</LinearLayout>
+</RelativeLayout>

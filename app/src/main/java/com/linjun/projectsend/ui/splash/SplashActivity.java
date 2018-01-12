@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.linjun.projectsend.R;
+import com.linjun.projectsend.ui.base.CheckPermissActivity;
 import com.linjun.projectsend.ui.main.MainActivity;
 import com.linjun.projectsend.utils.ActionUtils;
 
@@ -20,7 +21,7 @@ import butterknife.ButterKnife;
  * Created by Slinjun on 2018/1/5.
  */
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends CheckPermissActivity {
 
 
     @BindView(R.id.spl_logo)

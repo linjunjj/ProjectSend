@@ -1,44 +1,58 @@
 package com.linjun.projectsend.ui.base;
 
+/**
+ *
+ */
+
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
-import android.view.Window;
-import android.view.WindowManager;
-
-import com.linjun.projectsend.R;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.view.KeyEvent;
+
+import com.linjun.projectsend.R;
 
 /**
- * Created by linjun on 2018/1/5.
+ * 继承了Activity，实现Android6.0的运行时权限检测
+ * 需要进行运行时权限检测的Activity可以继承这个类
+ *
+ * @创建时间：2016年5月27日 下午3:01:31
+ * @项目名称： AMapLocationDemo
+ * @author hongming.wang
+ * @文件名称：PermissionsChecker.java
+ * @类型名称：PermissionsChecker
+ * @since 2.5.0
  */
-
-public abstract  class BaseActivity extends AppCompatActivity{
-    protected abstract  int getLayoutId();
-    protected abstract  void initView();
-    private Unbinder unbinder;
+public class CheckPermissActivity extends Activity {
     /**
      * 需要进行检测的权限数组
      */
-    /**
-     * 判断是否需要检测，防止不停的弹框
-     */
-    private boolean isNeedCheck = true;
     protected String[] needPermissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -49,30 +63,11 @@ public abstract  class BaseActivity extends AppCompatActivity{
 
     private static final int PERMISSON_REQUESTCODE = 0;
 
-    @Override
-    public void onCreate( Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    /**
+     * 判断是否需要检测，防止不停的弹框
+     */
+    private boolean isNeedCheck = true;
 
-
-        setContentView(getLayoutId());
-        unbinder= ButterKnife.bind(this);
-        initView();
-
-
-    }
-
-    protected  void fullScreen(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window window = getWindow();
-            window.setFlags(
-                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-            );
-        }
-    }
-    protected boolean isRegisterEvent(){
-        return false;
-    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -83,7 +78,6 @@ public abstract  class BaseActivity extends AppCompatActivity{
             }
         }
     }
-
 
     /**
      *
@@ -173,8 +167,8 @@ public abstract  class BaseActivity extends AppCompatActivity{
      */
     private void showMissingPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("提示");
-        builder.setMessage("");
+        builder.setTitle("|提示");
+        builder.setMessage("当前应用缺少必要的权限");
 
         // 拒绝, 退出应用
         builder.setNegativeButton("取消",
@@ -220,10 +214,4 @@ public abstract  class BaseActivity extends AppCompatActivity{
         return super.onKeyDown(keyCode, event);
     }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unbinder.unbind();
-    }
 }

@@ -34,5 +34,8 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+
+
 
 }

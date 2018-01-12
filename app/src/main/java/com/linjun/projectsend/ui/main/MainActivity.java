@@ -11,28 +11,43 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
-import com.amap.api.maps.MapView;
 import com.linjun.projectsend.R;
+import com.linjun.projectsend.common.DataModel;
 import com.linjun.projectsend.ui.base.BaseActivity;
+import com.linjun.projectsend.utils.HeartbeatTimer;
 import com.linjun.projectsend.utils.Utils;
+import com.linjun.projectsend.view.LineChartView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
 
 public class MainActivity extends BaseActivity {
 
-    @BindView(R.id.map)
-    MapView map;
+
     @BindView(R.id.btn_start)
     Button btnStart;
     @BindView(R.id.btn_location)
     Button btnLocation;
     @BindView(R.id.tv_result)
     TextView tvResult;
-//
+    @BindView(R.id.line_chart_view)
+    LineChartView lineChartView;
+    //
+    private int[] dataArr = new int[]{200, 100, 300, -20, 50, -80, 200, 100, 300, 50, 200, 150, 160, 100, 300, 50, 200, 150,
+            300, 50, 200, 100, 150, 150};
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
+   private StringBuffer sb = new StringBuffer();
+    private   HeartbeatTimer heartbeatTimer;
+    private ExecutorService mThreadPool;
 
     @Override
     protected int getLayoutId() {
@@ -42,7 +57,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
         initLocation();
-
+        initcart();
     }
 
     @OnClick({R.id.btn_start, R.id.btn_location})
@@ -51,17 +66,83 @@ public class MainActivity extends BaseActivity {
             case R.id.btn_start:
                 break;
             case R.id.btn_location:
-                startLocation();
+                if (btnLocation.getText().equals("定位")) {
+                    btnLocation.setText("停止定位");
+                    sb.append("开始定位...\n");
+
+                    tvResult.setText(sb.toString());
+                    startLocation();
+
+                } else {
+                    btnLocation.setText("定位");
+                    sb.append("停止定位...\n");
+                    tvResult.setText(sb.toString());
+                    stopLocation();
+
+                }
+
                 break;
         }
     }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         destroyLocation();
     }
+
+//    折线图设置
+    private  void initcart(){
+        List<LineChartView.Data> datas=new ArrayList<>();
+        for (int value : dataArr){
+            LineChartView.Data data=new LineChartView.Data(value);
+            datas.add(data);
+        }
+        lineChartView.setData(datas);
+       if (lineChartView!=null){
+           lineChartView.setRulerYSpace(42);
+           lineChartView.setStepSpace(15);
+           lineChartView.playAnim();
+           lineChartView.setShowTable(true);
+
+       }
+
+    }
+
+//发送心跳包
+
+
+    private  void startHeadTime(){
+      heartbeatTimer=new HeartbeatTimer();
+      heartbeatTimer.setOnScheduleListener(new HeartbeatTimer.OnScheduleLinstener() {
+          @Override
+          public void onSchedule() {
+
+
+
+            sendMessage();
+          }
+      });
+       heartbeatTimer.startTimer(0,1000*10);
+    }
+
+  public void sendMessage(final DataModel datas){
+      int cpuNumbers = Runtime.getRuntime().availableProcessors();
+      // 根据CPU数目初始化线程池
+      mThreadPool = Executors.newFixedThreadPool(cpuNumbers * 5);
+        mThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+
+
+            }
+        });
+
+  }
+
+
+
+
 
     /**
      * 初始化定位
@@ -75,6 +156,7 @@ public class MainActivity extends BaseActivity {
         locationOption = getDefaultOption();
         //设置定位参数
         locationClient.setLocationOption(locationOption);
+        locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         // 设置定位监听
         locationClient.setLocationListener(locationListener);
     }
@@ -89,7 +171,7 @@ public class MainActivity extends BaseActivity {
         AMapLocationClientOption mOption = new AMapLocationClientOption();
         mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
         mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
-        mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
+        mOption.setHttpTimeOut(3000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
         mOption.setInterval(2000);//可选，设置定位间隔。默认为2秒
         mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
         mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
@@ -109,7 +191,6 @@ public class MainActivity extends BaseActivity {
         public void onLocationChanged(AMapLocation location) {
             if (null != location) {
 
-                StringBuffer sb = new StringBuffer();
                 //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
                 if (location.getErrorCode() == 0) {
                     sb.append("定位成功" + "\n");
@@ -268,7 +349,6 @@ public class MainActivity extends BaseActivity {
             locationOption = null;
         }
     }
-
 
 
 
