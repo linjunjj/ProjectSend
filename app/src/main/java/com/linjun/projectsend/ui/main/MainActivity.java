@@ -13,11 +13,13 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
 import com.linjun.projectsend.R;
 import com.linjun.projectsend.common.DataModel;
+import com.linjun.projectsend.config.SendConfig;
 import com.linjun.projectsend.ui.base.BaseActivity;
 import com.linjun.projectsend.utils.HeartbeatTimer;
 import com.linjun.projectsend.utils.Utils;
 import com.linjun.projectsend.view.LineChartView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -26,8 +28,12 @@ import java.util.concurrent.Executors;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Call;
 import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity {
 
@@ -48,6 +54,13 @@ public class MainActivity extends BaseActivity {
    private StringBuffer sb = new StringBuffer();
     private   HeartbeatTimer heartbeatTimer;
     private ExecutorService mThreadPool;
+  private  String city;
+  private  String country;
+  private  String province;
+  private  double weidu;
+  private  double jingdu;
+
+
 
     @Override
     protected int getLayoutId() {
@@ -117,10 +130,15 @@ public class MainActivity extends BaseActivity {
       heartbeatTimer.setOnScheduleListener(new HeartbeatTimer.OnScheduleLinstener() {
           @Override
           public void onSchedule() {
+            DataModel dataModel=new DataModel();
+            dataModel.setCity(city);
+            dataModel.setCountry(country);
+            dataModel.setProvince(province);
+            dataModel.setTimestamp(System.currentTimeMillis());
+            dataModel.setLongitude(jingdu);
+            dataModel.setDimensionality(weidu);
 
-
-
-            sendMessage();
+            sendMessage(dataModel);
           }
       });
        heartbeatTimer.startTimer(0,1000*10);
@@ -133,6 +151,21 @@ public class MainActivity extends BaseActivity {
         mThreadPool.execute(new Runnable() {
             @Override
             public void run() {
+                OkHttpClient okHttpClient=new OkHttpClient();
+                RequestBody body =new FormBody.Builder().add("city",datas.getCity())
+                        .add("country",datas.getCountry())
+                        .add("province",datas.getProvince())
+                        .add("weidu", String.valueOf(datas.getDimensionality()))
+                        .add("jingdu", String.valueOf(datas.getLongitude()))
+                        .add("timesmap", String.valueOf(datas.getTimestamp())).build();
+                Request request=new Request.Builder().url(SendConfig.URL).post(body).build();
+                Call call=okHttpClient.newCall(request);
+                try {
+                    Response response=call.execute();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
 
             }
@@ -213,6 +246,15 @@ public class MainActivity extends BaseActivity {
                     sb.append("地    址    : " + location.getAddress() + "\n");
                     sb.append("兴趣点    : " + location.getPoiName() + "\n");
                     //定位完成的时间
+                      city=location.getCity();
+                      province=location.getProvince();
+                      country=location.getCountry();
+                      weidu=location.getLatitude();
+                      jingdu=location.getLongitude();
+
+
+
+
                     sb.append("定位时间: " + Utils.formatUTC(location.getTime(), "yyyy-MM-dd HH:mm:ss") + "\n");
                 } else {
                     //定位失败
