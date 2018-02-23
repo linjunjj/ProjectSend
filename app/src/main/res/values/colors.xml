@@ -8,4 +8,6 @@
     <color name="button_sure">#fe8b55</color>
     <color name="button_press">#a44100</color>
     <color name="white">#ffffff</color>
+    <color name="brand">#ffbf080B</color>
+    <color name="brand_fill">#80bf080B</color>
 </resources>

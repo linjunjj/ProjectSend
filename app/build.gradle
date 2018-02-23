@@ -35,7 +35,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
-
-
-
+    implementation   'com.txusballesteros:snake:1.0'
 }
+
+

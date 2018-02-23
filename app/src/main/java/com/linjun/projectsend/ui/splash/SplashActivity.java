@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import com.linjun.projectsend.R;
 import com.linjun.projectsend.ui.base.CheckPermissActivity;
-import com.linjun.projectsend.ui.main.MainActivity;
+import com.linjun.projectsend.ui.main.MainActivity1;
 import com.linjun.projectsend.utils.ActionUtils;
 
 import butterknife.BindView;
@@ -39,7 +39,7 @@ public class SplashActivity extends CheckPermissActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                ActionUtils.actionStart(SplashActivity.this, MainActivity.class);
+                ActionUtils.actionStart(SplashActivity.this, MainActivity1.class);
                 finish();
             }
         }, 2000);

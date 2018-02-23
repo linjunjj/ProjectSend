@@ -5,41 +5,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_backgorund"
-    tools:context="com.linjun.projectsend.ui.main.MainActivity"
+    tools:context="com.linjun.projectsend.ui.main.MainActivity1"
     android:orientation="vertical">
 
-<LinearLayout
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="500dp">
+
+
+    <include layout="@layout/include_hrm_counter"
+        android:id="@+id/include" />
+
+
+    <com.txusballesteros.SnakeView
+        android:id="@+id/snake"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/include"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp" />
+
+
+    <LinearLayout
+        android:layout_marginTop="250dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginBottom="50dp"
+        >
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="200dp"
 
         android:layout_marginBottom="60dp">
 
-        <TextView
-            android:id="@+id/tv_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </ScrollView>
-    <HorizontalScrollView
+    <TextView
+        android:id="@+id/tv_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:overScrollMode="never"
-        android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <com.linjun.projectsend.view.LineChartView
-                android:id="@+id/line_chart_view"
-                android:layout_width="wrap_content"
-                android:layout_height="250dp"/>
-        </LinearLayout>
-    </HorizontalScrollView>
+        />
+    </ScrollView>
 </LinearLayout>
+
+
 
     <RelativeLayout
         android:layout_alignParentBottom="true"
@@ -54,18 +62,7 @@
             android:textColor="@color/white"
             android:text="启动"
             android:background="@drawable/btn_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:id="@+id/btn_location"
-            android:textSize="22sp"
-            android:textColor="@color/white"
-            android:text="定位"
-            android:background="@drawable/btn_selector"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
 </RelativeLayout>
