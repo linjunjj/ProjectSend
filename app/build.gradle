@@ -36,6 +36,10 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation   'com.txusballesteros:snake:1.0'
+// https://mvnrepository.com/artifact/org.t-io/tio-core
+    compile group: 'org.t-io', name: 'tio-core', version: '2.0.8.v20180205-RELEASE'
 }
 
-
+configurations.all {
+    resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+}
