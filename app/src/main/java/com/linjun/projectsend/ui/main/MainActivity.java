@@ -13,11 +13,31 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
 import com.linjun.projectsend.R;
 
+import com.linjun.projectsend.common.Const;
+import com.linjun.projectsend.common.ShowcasePacket;
+import com.linjun.projectsend.common.Type;
+import com.linjun.projectsend.common.packets.LoginReqBody;
+import com.linjun.projectsend.handler.LoginRespHandler;
+import com.linjun.projectsend.handler.ShowcaseClientAioHandler;
+import com.linjun.projectsend.handler.ShowcaseClientAioListener;
+import com.linjun.projectsend.model.SendPacket;
 import com.linjun.projectsend.ui.base.BaseActivity;
 import com.linjun.projectsend.utils.HeartbeatTimer;
 import com.linjun.projectsend.utils.Utils;
 import com.txusballesteros.SnakeView;
 
+import org.tio.client.AioClient;
+import org.tio.client.ClientChannelContext;
+import org.tio.client.ClientGroupContext;
+import org.tio.client.ReconnConf;
+import org.tio.client.intf.ClientAioHandler;
+import org.tio.client.intf.ClientAioListener;
+import org.tio.core.Aio;
+import org.tio.core.Node;
+import org.tio.utils.json.Json;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ExecutorService;
 
 import butterknife.BindView;
@@ -40,19 +60,21 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
             150, 150, 160, 170, 175, 180,
             170, 140, 130, 110, 90, 80, 60};
     private AMapLocationClient locationClient = null;
-    private AMapLocationClientOption locationOption = null;
-    private StringBuffer sb = new StringBuffer();
-    private HeartbeatTimer heartbeatTimer;
-    private ExecutorService mThreadPool;
-    private String city;
-    private String country;
-    private String province;
-    private double weidu;
-    private double jingdu;
+    public StringBuffer sb = new StringBuffer();
 
     private int position = 0;
     private boolean stop = false;
-    AMapLocationClient aMapLocationClient=null;
+   static String  serverIp= Const.ServerIP;
+   static  int serverPort=Const.PORT;
+    private static Node serverNode=new Node(serverIp,serverPort);
+    private  static ReconnConf reconnConf=new ReconnConf(5000L);
+    private static ClientAioHandler aioClientHandler = new ShowcaseClientAioHandler();
+    private static ClientAioListener aioListener = new ShowcaseClientAioListener();
+    private static ClientGroupContext clientGroupContext = new ClientGroupContext(aioClientHandler, aioListener, reconnConf);
+
+    private static AioClient aioClient = null;
+
+    static ClientChannelContext clientChannelContext;
 
     @Override
     protected int getLayoutId() {
@@ -109,7 +131,7 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
                     generateValue();
                 }
             }
-        }, 500);
+        }, 5000);
     }
 
 
@@ -146,10 +168,38 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
         if (location.getErrorCode()==0){
             sb.append("开始向后端传送数据"+"\n");
             tvResult.append(sb.toString());
+            clientGroupContext.setHeartbeatTimeout(5000);
+            try {
+                aioClient = new AioClient(clientGroupContext);
+                clientChannelContext = aioClient.connect(serverNode);
+             SendPacket sendPacket =new SendPacket();
+             sendPacket.setTime(System.currentTimeMillis());
+             sendPacket.setJingdu(location.getLongitude());
+             sendPacket.setWeidu(location.getLatitude());
+             sendPacket.setSpeed(location.getSpeed());
+                processCommand(sendPacket);
+                sb.append(LoginRespHandler.getBody().getCode()+ "\n");
+                tvResult.setText(sb.toString());
+                generateValue();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
     }
+
+public  static  void  processCommand(SendPacket packet) throws UnsupportedEncodingException {
+        if (packet==null){
+            return;
+        }
+    LoginReqBody loginReqBody=new LoginReqBody();
+        loginReqBody.setDeviceID(packet.getDeviceid());
+    ShowcasePacket showcasePacket=new ShowcasePacket();
+    showcasePacket.setType(Type.LOGIN_REQ);
+    showcasePacket.setBody(Json.toJson(loginReqBody).getBytes(ShowcasePacket.CHARSET));
+    Aio.send(clientChannelContext,showcasePacket);
+}
     private String getGPSStatusString(int statusCode){
         String str = "";
         switch (statusCode){
