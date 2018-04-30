@@ -55,13 +55,12 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
     TextView tvResult;
     @BindView(R.id.btn_start)
     Button btnStart;
-    //
+
     private float[] values = new float[] { 60, 70, 80, 90, 100,
             150, 150, 160, 170, 175, 180,
             170, 140, 130, 110, 90, 80, 60};
     private AMapLocationClient locationClient = null;
     public StringBuffer sb = new StringBuffer();
-
     private int position = 0;
     private boolean stop = false;
    static String  serverIp= Const.ServerIP;
@@ -138,7 +137,7 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
     @Override
     public void onLocationChanged(AMapLocation location) {
         //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
-        if(location.getErrorCode() == 0){
+        if (location.getErrorCode() == 0) {
             sb.append("定位成功" + "\n");
             sb.append("定位类型: " + location.getLocationType() + "\n");
             sb.append("经    度    : " + location.getLongitude() + "\n");
@@ -158,27 +157,27 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
             sb.append("错误描述:" + location.getLocationDetail() + "\n");
         }
         sb.append("***定位质量报告***").append("\n");
-        sb.append("* WIFI开关：").append(location.getLocationQualityReport().isWifiAble() ? "开启":"关闭").append("\n");
+        sb.append("* WIFI开关：").append(location.getLocationQualityReport().isWifiAble() ? "开启" : "关闭").append("\n");
         sb.append("* GPS状态：").append(getGPSStatusString(location.getLocationQualityReport().getGPSStatus())).append("\n");
         sb.append("* GPS星数：").append(location.getLocationQualityReport().getGPSSatellites()).append("\n");
         sb.append("****************").append("\n");
         //定位之后的回调时间
         sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
         tvResult.setText(sb.toString());
-        if (location.getErrorCode()==0){
-            sb.append("开始向后端传送数据"+"\n");
+        if (location.getErrorCode() == 0) {
+            sb.append("开始向后端传送数据" + "\n");
             tvResult.append(sb.toString());
             clientGroupContext.setHeartbeatTimeout(5000);
             try {
                 aioClient = new AioClient(clientGroupContext);
                 clientChannelContext = aioClient.connect(serverNode);
-             SendPacket sendPacket =new SendPacket();
-             sendPacket.setTime(System.currentTimeMillis());
-             sendPacket.setJingdu(location.getLongitude());
-             sendPacket.setWeidu(location.getLatitude());
-             sendPacket.setSpeed(location.getSpeed());
+                SendPacket sendPacket = new SendPacket();
+                sendPacket.setTime(System.currentTimeMillis());
+                sendPacket.setJingdu(location.getLongitude());
+                sendPacket.setWeidu(location.getLatitude());
+                sendPacket.setSpeed(location.getSpeed());
                 processCommand(sendPacket);
-                sb.append(LoginRespHandler.getBody().getCode()+ "\n");
+                sb.append(LoginRespHandler.getBody().getCode() + "\n");
                 tvResult.setText(sb.toString());
                 generateValue();
             } catch (Exception e) {
@@ -186,8 +185,8 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
             }
         }
 
-
     }
+
 
 public  static  void  processCommand(SendPacket packet) throws UnsupportedEncodingException {
         if (packet==null){

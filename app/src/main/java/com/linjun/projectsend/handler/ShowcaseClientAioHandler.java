@@ -23,6 +23,8 @@ public class ShowcaseClientAioHandler extends ShowcaseAbsAioHandler implements C
         handlerMap.put(Type.LOGIN_RESP, new LoginRespHandler());
     }
 
+
+
     private static ShowcasePacket heartbeatPacket = new ShowcasePacket(Type.HEART_BEAT_REQ, null);
 
     /**
