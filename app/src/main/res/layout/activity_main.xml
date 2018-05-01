@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_backgorund"
-    tools:context="com.linjun.projectsend.ui.main.MainActivity1"
+    tools:context="com.linjun.projectsend.ui.main.MainActivity"
     android:orientation="vertical">
 
 
@@ -19,12 +19,11 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/include"
+        android:layout_alignParentTop="true"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="97dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp" />
-
 
     <LinearLayout
         android:layout_marginTop="250dp"
@@ -37,7 +36,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-
     <TextView
         android:id="@+id/tv_result"
         android:layout_width="match_parent"
@@ -45,9 +43,6 @@
         />
     </ScrollView>
 </LinearLayout>
-
-
-
     <RelativeLayout
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
@@ -59,7 +54,7 @@
             android:id="@+id/btn_start"
             android:textSize="22sp"
             android:textColor="@color/white"
-            android:text="启动"
+            android:text="开始"
             android:background="@drawable/btn_selector"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

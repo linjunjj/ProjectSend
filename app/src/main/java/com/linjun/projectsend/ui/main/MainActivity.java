@@ -1,8 +1,9 @@
 package com.linjun.projectsend.ui.main;
 
-import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.os.Handler;
 
+import android.os.Message;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -12,41 +13,20 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
 import com.linjun.projectsend.R;
-
-import com.linjun.projectsend.common.Const;
-import com.linjun.projectsend.common.ShowcasePacket;
-import com.linjun.projectsend.common.Type;
-import com.linjun.projectsend.common.packets.LoginReqBody;
-import com.linjun.projectsend.handler.LoginRespHandler;
-import com.linjun.projectsend.handler.ShowcaseClientAioHandler;
-import com.linjun.projectsend.handler.ShowcaseClientAioListener;
-import com.linjun.projectsend.model.SendPacket;
+import com.linjun.projectsend.common.packets.SendPacket;
 import com.linjun.projectsend.ui.base.BaseActivity;
-import com.linjun.projectsend.utils.HeartbeatTimer;
 import com.linjun.projectsend.utils.Utils;
 import com.txusballesteros.SnakeView;
 
-import org.tio.client.AioClient;
-import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientGroupContext;
-import org.tio.client.ReconnConf;
-import org.tio.client.intf.ClientAioHandler;
-import org.tio.client.intf.ClientAioListener;
-import org.tio.core.Aio;
-import org.tio.core.Node;
-import org.tio.utils.json.Json;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutorService;
-
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 
 public class MainActivity extends BaseActivity implements  AMapLocationListener{
-
-
     @BindView(R.id.text)
     TextView text;
     @BindView(R.id.snake)
@@ -55,25 +35,12 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
     TextView tvResult;
     @BindView(R.id.btn_start)
     Button btnStart;
-
-    private float[] values = new float[] { 60, 70, 80, 90, 100,
-            150, 150, 160, 170, 175, 180,
-            170, 140, 130, 110, 90, 80, 60};
+   private NioEventLoopGroup group;
+    private  Channel channel;
+    private  ChannelFuture channelFuture;
     private AMapLocationClient locationClient = null;
+    private AMapLocationClientOption locationOption = null;
     public StringBuffer sb = new StringBuffer();
-    private int position = 0;
-    private boolean stop = false;
-   static String  serverIp= Const.ServerIP;
-   static  int serverPort=Const.PORT;
-    private static Node serverNode=new Node(serverIp,serverPort);
-    private  static ReconnConf reconnConf=new ReconnConf(5000L);
-    private static ClientAioHandler aioClientHandler = new ShowcaseClientAioHandler();
-    private static ClientAioListener aioListener = new ShowcaseClientAioListener();
-    private static ClientGroupContext clientGroupContext = new ClientGroupContext(aioClientHandler, aioListener, reconnConf);
-
-    private static AioClient aioClient = null;
-
-    static ClientChannelContext clientChannelContext;
 
     @Override
     protected int getLayoutId() {
@@ -82,19 +49,20 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
 
     @Override
     protected void initView() {
+        if (null == locationOption) {
+            locationOption = new AMapLocationClientOption();
+        }
        locationClient=new AMapLocationClient(this);
-       AMapLocationClientOption option=new AMapLocationClientOption();
-       option.setLocationPurpose(AMapLocationClientOption.AMapLocationPurpose.Sport);
-       locationClient.setLocationOption(option);
+        locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        locationOption=getDefaultOption();
        locationClient.setLocationListener(this);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (null!=locationClient){
-            locationClient.onDestroy();
-        }
+        destroyLocation();
     }
 
 
@@ -103,35 +71,53 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
         if (btnStart.getText().equals("开始")) {
             btnStart.setText("停止");
             sb.append("开始定位...\n");
-            locationClient.startLocation();
-
+            startLocation();
 
         } else {
-            btnStart.setText("开始");
             sb.append("停止定位...\n");
+            btnStart.setText("开始");
             tvResult.setText(sb.toString());
-            locationClient.stopLocation();
+            stopLocation();
         }
     }
+    @SuppressLint("HandlerLeak")
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            String m=msg+"";
+           switch (msg.what){
+               case 0:
+                   SendPacket packet=new SendPacket();
+                   packet.setSend_time(System.currentTimeMillis());
+                   packet.setCountPackage(1);
+                   channel.writeAndFlush(packet);
+                   break;
+               case 1:
+                   tvResult.setText(tvResult.getText()+m+"\r\n");
+               case 2:
+                   tvResult.setText("");
+                   break;
+               case 3:
+                   String mm=String.valueOf(tvResult.getText()+"'");
+                    byte[] bb=mm.getBytes();
+                   SendPacket packet1=new SendPacket();
+                   packet1.setSend_time(System.currentTimeMillis());
+                   packet1.setBytes(bb);
+                   packet1.setCountPackage(1);
+                   channel.writeAndFlush(mm).addListener(new ChannelFutureListener() {
+                       @Override
+                       public void operationComplete(ChannelFuture future) throws Exception {
+                           handler.obtainMessage(2).sendToTarget();
+                       }
+                   });
+                   break;
+               case 4:
 
-    private void generateValue() {
-        if (position < (values.length - 1)) {
-            position++;
-        } else {
-            position = 0;
+
+           }
         }
-        float value = values[position];
-        snake.addValue(value);
-        text.setText(Integer.toString((int)value));
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!stop) {
-                    generateValue();
-                }
-            }
-        }, 5000);
-    }
+    };
+
 
 
     @Override
@@ -167,38 +153,12 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
         if (location.getErrorCode() == 0) {
             sb.append("开始向后端传送数据" + "\n");
             tvResult.append(sb.toString());
-            clientGroupContext.setHeartbeatTimeout(5000);
-            try {
-                aioClient = new AioClient(clientGroupContext);
-                clientChannelContext = aioClient.connect(serverNode);
-                SendPacket sendPacket = new SendPacket();
-                sendPacket.setTime(System.currentTimeMillis());
-                sendPacket.setJingdu(location.getLongitude());
-                sendPacket.setWeidu(location.getLatitude());
-                sendPacket.setSpeed(location.getSpeed());
-                processCommand(sendPacket);
-                sb.append(LoginRespHandler.getBody().getCode() + "\n");
-                tvResult.setText(sb.toString());
-                generateValue();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
         }
 
     }
 
 
-public  static  void  processCommand(SendPacket packet) throws UnsupportedEncodingException {
-        if (packet==null){
-            return;
-        }
-    LoginReqBody loginReqBody=new LoginReqBody();
-        loginReqBody.setDeviceID(packet.getDeviceid());
-    ShowcasePacket showcasePacket=new ShowcasePacket();
-    showcasePacket.setType(Type.LOGIN_REQ);
-    showcasePacket.setBody(Json.toJson(loginReqBody).getBytes(ShowcasePacket.CHARSET));
-    Aio.send(clientChannelContext,showcasePacket);
-}
     private String getGPSStatusString(int statusCode){
         String str = "";
         switch (statusCode){
@@ -220,5 +180,49 @@ public  static  void  processCommand(SendPacket packet) throws UnsupportedEncodi
         }
         return str;
     }
+
+    private AMapLocationClientOption getDefaultOption(){
+        AMapLocationClientOption mOption = new AMapLocationClientOption();
+        mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
+        mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
+        mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
+        mOption.setInterval(2000);//可选，设置定位间隔。默认为2秒
+        mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
+        mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
+        mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
+        AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
+        mOption.setSensorEnable(false);//可选，设置是否使用传感器。默认是false
+        mOption.setWifiScan(true); //可选，设置是否开启wifi扫描。默认为true，如果设置为false会同时停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
+        mOption.setLocationCacheEnable(true); //可选，设置是否使用缓存定位，默认为true
+        return mOption;
+    }
+
+    private void startLocation(){
+        //根据控件的选择，重新设置定位参数
+        // 设置定位参数
+        locationClient.setLocationOption(locationOption);
+        // 启动定位
+        locationClient.startLocation();
+    }
+
+    /**
+     * 停止定位
+     *
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private void stopLocation(){
+        // 停止定位
+        locationClient.stopLocation();
+    }
+    private void destroyLocation(){
+        if (null != locationClient) {
+            locationClient.onDestroy();
+            locationClient = null;
+            locationOption = null;
+        }
+    }
+
 
 }

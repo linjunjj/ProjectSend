@@ -1,6 +1,5 @@
 package com.linjun.projectsend.ui.splash;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -11,7 +10,7 @@ import android.widget.ImageView;
 
 import com.linjun.projectsend.R;
 import com.linjun.projectsend.ui.base.CheckPermissActivity;
-import com.linjun.projectsend.ui.main.MainActivity1;
+import com.linjun.projectsend.ui.main.MainActivity;
 import com.linjun.projectsend.utils.ActionUtils;
 
 import butterknife.BindView;
@@ -39,7 +38,7 @@ public class SplashActivity extends CheckPermissActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                ActionUtils.actionStart(SplashActivity.this, MainActivity1.class);
+                ActionUtils.actionStart(SplashActivity.this, MainActivity.class);
                 finish();
             }
         }, 2000);
