@@ -64,6 +64,9 @@
             android:windowSoftInputMode="adjustResize|stateHidden"
             />
 
+        <service
+            android:name="com.linjun.projectsend.service.LocationService" />
+        <service android:name=".service.TestService"></service>
     </application>
 
 </manifest>

@@ -1,185 +1,83 @@
-package com.linjun.projectsend.ui.main;
+package com.linjun.projectsend.service;
 
-import android.annotation.SuppressLint;
-import android.content.ComponentName;
-import android.content.Context;
+import android.app.Notification;
+import android.app.Service;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
-import com.linjun.projectsend.R;
-import com.linjun.projectsend.common.packets.SendPacket;
-import com.linjun.projectsend.service.LocationService;
-import com.linjun.projectsend.service.TestService;
-import com.linjun.projectsend.ui.base.BaseActivity;
 import com.linjun.projectsend.utils.Utils;
-import com.txusballesteros.SnakeView;
 
-import butterknife.BindView;
-import butterknife.OnClick;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.nio.NioEventLoopGroup;
+import java.util.Timer;
+import java.util.TimerTask;
 
-
-public class MainActivity extends BaseActivity implements  AMapLocationListener{
-    @BindView(R.id.text)
-    TextView text;
-    @BindView(R.id.snake)
-    SnakeView snake;
-    @BindView(R.id.tv_result)
-    TextView tvResult;
-    @BindView(R.id.btn_start)
-    Button btnStart;
-   private NioEventLoopGroup group;
-    private  Channel channel;
-    private  ChannelFuture channelFuture;
+public class LocationService extends Service implements AMapLocationListener {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
     public StringBuffer sb = new StringBuffer();
-    private Messenger sMessenger;
+    public final String TAG="LocationService";
+
+    private Timer mTimer;
+
 
     @Override
-    protected int getLayoutId() {
-        return R.layout.activity_main;
+    public void onCreate() {
+        Notification noti = new Notification();
+        noti.flags = Notification.FLAG_NO_CLEAR|Notification.FLAG_ONGOING_EVENT;
+        startForeground(1, noti);
+        Log.i(TAG,"定位成功");
+       System.out.println("服务启动了");
     }
 
     @Override
-    protected void initView() {
-//        if (null == locationOption) {
-//            locationOption = new AMapLocationClientOption();
-//        }
-//       locationClient=new AMapLocationClient(this);
-//        locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-//        locationOption=getDefaultOption();
-//       locationClient.setLocationListener(this);
-
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mTimer = new Timer();
+        TimerTask task = new TimerTask(){
+            @Override
+            public void run() {
+                initLocation();
+                locationClient.startLocation();
+            }};
+        mTimer.scheduleAtFixedRate(task, 0, 30*1000);
+//        flags = START_STICKY;
+        return START_STICKY;
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
+        destroyLocation();
+        stopLocation();
         super.onDestroy();
-//        destroyLocation();
     }
 
-
-    @OnClick(R.id.btn_start)
-    public void onViewClicked() {
-        if (btnStart.getText().equals("开始")) {
-            btnStart.setText("停止");
-            sb.append("开始定位...\n");
-//            startLocation();
-            Intent intet1 = new Intent(MainActivity.this, TestService.class);
-//            startService(intet1);
-            bindService(intet1,conn, Context.BIND_AUTO_CREATE);
-            tvResult.setText("启动服务成功");
-
-        } else {
-            sb.append("停止定位...\n");
-            btnStart.setText("开始");
-            tvResult.setText(sb.toString());
-//            stopLocation();
-
-        }
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
-//    @SuppressLint("HandlerLeak")
-//    Handler handler=new Handler(){
-//        @Override
-//        public void handleMessage(Message msg) {
-//            String m=msg+"";
-//           switch (msg.what){
-//               case 0:
-//                   SendPacket packet=new SendPacket();
-//                   packet.setSend_time(System.currentTimeMillis());
-//                   packet.setCountPackage(1);
-//                   channel.writeAndFlush(packet);
-//                   break;
-//               case 1:
-//                   tvResult.setText(tvResult.getText()+m+"\r\n");
-//               case 2:
-//                   tvResult.setText("");
-//                   break;
-//               case 3:
-//                   String mm=String.valueOf(tvResult.getText()+"'");
-//                    byte[] bb=mm.getBytes();
-//                   SendPacket packet1=new SendPacket();
-//                   packet1.setSend_time(System.currentTimeMillis());
-//                   packet1.setBytes(bb);
-//                   packet1.setCountPackage(1);
-//                   channel.writeAndFlush(mm).addListener(new ChannelFutureListener() {
-//                       @Override
-//                       public void operationComplete(ChannelFuture future) throws Exception {
-//                           handler.obtainMessage(2).sendToTarget();
-//                       }
-//                   });
-//                   break;
-//               case 4:
-//
-//
-//           }
-//        }
-//    };
-
-    private Handler handler=new Handler() {
-        // 获取Service发送过来的消息进行处理
-        @Override
-        public void handleMessage(Message msg) {
-            Log.i("回传的消息是", "----->Client processes message.");
-            switch (msg.what) {
-                case 0:
-                    // 此为示例，仅仅显示获取到的消息
-                    tvResult.setText(tvResult.getText() + "\n" + msg.obj);
-                    break;
-            }
-        }
-    };
-
-    //定义Connection，作为启动Services的参数
-    private ServiceConnection conn=new ServiceConnection(){
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
-            TestService.Binder binder = (TestService.Binder) service;
-            TestService myService = binder.getService();
-            myService.setCallback(new TestService.Callback() {
-                @Override
-                public void onDataChange(String data) {
-                    Message msg = new Message();
-                    msg.obj = data;
-                    handler.sendMessage(msg);
-                }
-            });
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name)
-        {
-            sMessenger=null;
-            Log.i("对方水电费", "----->ServiceConnection isConn is flase");
-        }
-    };
-
+   private  void initLocation(){
+       if (null == locationOption) {
+           locationOption = new AMapLocationClientOption();
+       }
+       locationClient=new AMapLocationClient(this);
+       locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+       locationOption=getDefaultOption();
+       locationClient.setLocationListener(this);
+   }
 
     @Override
     public void onLocationChanged(AMapLocation location) {
-        //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
         if (location.getErrorCode() == 0) {
             sb.append("定位成功" + "\n");
+            Log.i(TAG,"定位成功");
             sb.append("定位类型: " + location.getLocationType() + "\n");
             sb.append("经    度    : " + location.getLongitude() + "\n");
             sb.append("纬    度    : " + location.getLatitude() + "\n");
@@ -204,16 +102,12 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
         sb.append("****************").append("\n");
         //定位之后的回调时间
         sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
-        tvResult.setText(sb.toString());
         if (location.getErrorCode() == 0) {
+            Log.i("s",sb.toString());
+            System.out.print(sb.toString());
             sb.append("开始向后端传送数据" + "\n");
-            tvResult.append(sb.toString());
-
         }
-
     }
-
-
     private String getGPSStatusString(int statusCode){
         String str = "";
         switch (statusCode){
@@ -278,6 +172,4 @@ public class MainActivity extends BaseActivity implements  AMapLocationListener{
             locationOption = null;
         }
     }
-
-
 }
