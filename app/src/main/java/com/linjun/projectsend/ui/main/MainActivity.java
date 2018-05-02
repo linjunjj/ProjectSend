@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
+import com.linjun.SendPacket;
 import com.linjun.projectsend.R;
 import com.linjun.projectsend.config.Const;
 import com.linjun.projectsend.handler.HeartBeatInitializer;
@@ -149,7 +150,7 @@ public class MainActivity extends BaseActivity {
                 case 2:
                     Log.i("sww22ww", msg.obj.toString());
                     String hello = msg.obj.toString();
-                    EchoMessage em = new EchoMessage();
+                    SendPacket em = new SendPacket();
                     byte[] b = hello.getBytes();
                     em.setBytes(b);
                     em.setSumCountPackage(b.length);

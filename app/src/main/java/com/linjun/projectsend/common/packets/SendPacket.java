@@ -21,7 +21,6 @@ public class SendPacket implements Serializable {
     public int getSumCountPackage() {
         return sumCountPackage;
     }
-
     public void setSumCountPackage(int sumCountPackage) {
         this.sumCountPackage = sumCountPackage;
     }
