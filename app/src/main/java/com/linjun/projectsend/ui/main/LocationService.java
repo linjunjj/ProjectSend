@@ -14,6 +14,7 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
+import com.linjun.SendPacket;
 import com.linjun.projectsend.utils.Utils;
 
 import java.util.Timer;
@@ -117,7 +118,13 @@ public class LocationService extends Service implements AMapLocationListener {
             msg.what = 1;
             MainActivity.handler.sendMessage(msg);
             Message msg1 = new Message();
-            msg1.obj=location.getLongitude();
+            SendPacket sendPacket=new SendPacket();
+            sendPacket.setJingdu(location.getLongitude());
+            sendPacket.setWeidu(location.getLatitude());
+            sendPacket.setSpeed(location.getSpeed());
+//            sendPacket.setBytes();
+            sendPacket.setSend_time(System.currentTimeMillis());
+            msg1.obj=sendPacket;
             msg1.what = 2;
             MainActivity.handler.sendMessage(msg1);
         }

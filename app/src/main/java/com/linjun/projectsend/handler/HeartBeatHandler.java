@@ -15,14 +15,14 @@ public class HeartBeatHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, String s) throws Exception {
         Message message = handler.obtainMessage(1);
-        message.obj = "[SYSTEM] - " + s;
+        message.obj = "服务端:" + s+"\n";
         message.sendToTarget();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Message message = handler.obtainMessage(1);
-        message.obj = "[SYSTEM] - CLIENT ACTIVE";
+        message.obj = "当前链路被连接\n";
         message.sendToTarget();
         super.channelActive(ctx);
     }
@@ -30,7 +30,7 @@ public class HeartBeatHandler extends SimpleChannelInboundHandler<String> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Message message = handler.obtainMessage(1);
-        message.obj = "[SYSTEM] - CLIENT INACTIVE";
+        message.obj = "当前链路被关闭\n";
         message.sendToTarget();
         super.channelInactive(ctx);
     }

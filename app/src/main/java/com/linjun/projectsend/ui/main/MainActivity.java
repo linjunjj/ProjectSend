@@ -128,19 +128,12 @@ public class MainActivity extends BaseActivity {
             switch (msg.what) {
                 case 0:
                     String hello1 = new String("I'm in!");
-
-                    //ByteBuf buf = Unpooled.buffer(hello.length());
-                    //buf.readBytes(hello.getBytes());
-                    //channel.writeAndFlush(buf);
-                    //channel.read();
-
                     EchoMessage em1 = new EchoMessage();
                     byte[] b1 = hello1.getBytes();
                     em1.setBytes(b1);
                     em1.setSumCountPackage(b1.length);
                     em1.setCountPackage(1);
                     em1.setSend_time(System.currentTimeMillis());
-
                     channel.writeAndFlush(em1);
                     break;
                 case 1:
@@ -149,29 +142,12 @@ public class MainActivity extends BaseActivity {
                     break;
                 case 2:
                     Log.i("sww22ww", msg.obj.toString());
-                    String hello = msg.obj.toString();
                     SendPacket em = new SendPacket();
-                    byte[] b = hello.getBytes();
-                    em.setBytes(b);
-                    em.setSumCountPackage(b.length);
-                    em.setCountPackage(1);
-                    em.setSend_time(System.currentTimeMillis());
+                    em=(SendPacket) msg.obj;
                     channel.writeAndFlush(em);
-                    Log.i("sww22ww", msg.obj.toString());
                     break;
                 case 3:
-//                    String mm = String.valueOf(tvResult.getText() + "'");
-//                    byte[] bb = mm.getBytes();
-//                    SendPacket packet1 = new SendPacket();
-//                    packet1.setSend_time(System.currentTimeMillis());
-//                    packet1.setBytes(bb);
-//                    packet1.setCountPackage(1);
-//                    channel.writeAndFlush(mm).addListener(new ChannelFutureListener() {
-//                        @Override
-//                        public void operationComplete(ChannelFuture future) throws Exception {
-//                            handler.obtainMessage(2).sendToTarget();
-//                        }
-//                    });
+
                     break;
 
             }
