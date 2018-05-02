@@ -1,8 +1,10 @@
 package com.linjun.projectsend.common.packets;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class SendPacket implements Serializable {
+    private static final long serialVersionUID = 4010249994097151671L;
     private  String deviceid;
     private  double jingdu;
     private  double weidu;
@@ -110,5 +112,23 @@ public class SendPacket implements Serializable {
 
     public void setContext(String context) {
         this.context = context;
+    }
+
+    @Override
+    public String toString() {
+        return "SendPacket{" +
+                "deviceid='" + deviceid + '\'' +
+                ", jingdu=" + jingdu +
+                ", weidu=" + weidu +
+                ", speed=" + speed +
+                ", context='" + context + '\'' +
+                ", bytes=" + Arrays.toString(bytes) +
+                ", send_uid='" + send_uid + '\'' +
+                ", receive_uid='" + receive_uid + '\'' +
+                ", send_time=" + send_time +
+                ", receive_time=" + receive_time +
+                ", sumCountPackage=" + sumCountPackage +
+                ", countPackage=" + countPackage +
+                '}';
     }
 }

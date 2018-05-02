@@ -65,7 +65,7 @@
             />
 
         <service
-            android:name="com.linjun.projectsend.service.LocationService" />
+            android:name="com.linjun.projectsend.ui.main.LocationService" />
         <service android:name=".service.TestService"></service>
     </application>
 

@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
@@ -35,8 +35,9 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
-    implementation   'com.txusballesteros:snake:1.0'
-// https://mvnrepository.com/artifact/org.t-io/tio-core
-    implementation group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+    implementation 'com.txusballesteros:snake:1.0'
+    // https://mvnrepository.com/artifact/org.t-io/tio-core
+    implementation 'io.netty:netty-all:4.1.24.Final'
+    implementation files('libs/Exchange-pojo.jar')
 }
 

@@ -2,62 +2,73 @@ package com.linjun.projectsend.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
+import android.os.Message;
+
+import com.linjun.projectsend.ui.main.MainActivity;
 
 
-public class TestService extends Service{
-
-    private boolean connecting = false;
-    private Callback callback;
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return new Binder();
+public class TestService extends Service {
+    private int i=0;
+    private boolean isStop;
+    public TestService() {
+        System.out.println("实例化downService");
     }
 
-    public class Binder extends android.os.Binder {
-        public TestService getService() {
-            return TestService.this;
+    public void onCreate() {
+
+        System.out.println("downService->onCreate");
+        new Thread(new DownThread()).start();//启动线程
+        super.onCreate();
+    }
+
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // TODO Auto-generated method stub
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        isStop=true;
+        System.out.println("downService->onDestroy");
+    }
+    //每个一秒发一个通知
+    class DownThread implements Runnable{
+
+        public void run() {
+            while(!isStop){
+                i++;
+                try {
+                    Thread.sleep(1000);
+                    Message msg = new Message();
+                    msg.what = i;
+//                    MainActivity.handler.sendMessage(msg);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        connecting = true;
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                int i = 0;
-                while (connecting == true) {
-                    i++;
-                    if (callback != null) {
-                        callback.onDataChange(i + "");
-                    }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+    public boolean isStop() {
+        return isStop;
+    }
+    public void setStop(boolean isStop) {
+        this.isStop = isStop;
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
-    }
+    public IBinder onBind(Intent intent) {
+        System.out.println("onBind");
 
-    public static interface Callback {
-        void onDataChange(String data);
+        return echoBinder;
     }
+    private CountBinder echoBinder = new CountBinder();
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        connecting = false;
+    public class CountBinder extends Binder {
+        public TestService getService(){
+            return TestService.this;
+        }
     }
 }

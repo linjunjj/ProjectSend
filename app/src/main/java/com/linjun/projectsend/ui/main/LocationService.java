@@ -1,9 +1,9 @@
-package com.linjun.projectsend.service;
+package com.linjun.projectsend.ui.main;
 
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -22,7 +22,6 @@ import java.util.TimerTask;
 public class LocationService extends Service implements AMapLocationListener {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
-    public StringBuffer sb = new StringBuffer();
     public final String TAG="LocationService";
 
     private Timer mTimer;
@@ -51,17 +50,26 @@ public class LocationService extends Service implements AMapLocationListener {
         return START_STICKY;
     }
 
+
+
+    private CountBinder echoBinder = new CountBinder();
+
+    public class CountBinder extends Binder {
+        public LocationService getService(){
+            return LocationService.this;
+        }
+    }
     @Override
     public void onDestroy() {
-        destroyLocation();
         stopLocation();
+        destroyLocation();
         super.onDestroy();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return echoBinder;
     }
    private  void initLocation(){
        if (null == locationOption) {
@@ -75,6 +83,7 @@ public class LocationService extends Service implements AMapLocationListener {
 
     @Override
     public void onLocationChanged(AMapLocation location) {
+        StringBuffer sb = new StringBuffer();
         if (location.getErrorCode() == 0) {
             sb.append("定位成功" + "\n");
             Log.i(TAG,"定位成功");
@@ -103,9 +112,14 @@ public class LocationService extends Service implements AMapLocationListener {
         //定位之后的回调时间
         sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
         if (location.getErrorCode() == 0) {
-            Log.i("s",sb.toString());
-            System.out.print(sb.toString());
-            sb.append("开始向后端传送数据" + "\n");
+            Message msg = new Message();
+            msg.obj=sb.toString();
+            msg.what = 1;
+            MainActivity.handler.sendMessage(msg);
+            Message msg1 = new Message();
+            msg1.obj=location.getLongitude();
+            msg1.what = 2;
+            MainActivity.handler.sendMessage(msg1);
         }
     }
     private String getGPSStatusString(int statusCode){
