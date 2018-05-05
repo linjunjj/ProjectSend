@@ -6,6 +6,5 @@ package com.linjun.projectsend.config;
 
 public class Const {
    public static final String HOST="192.168.1.107";
-   public  static  final  int TCP_PORT=8080;
-
+   public  static  final  int TCP_PORT=8000;
 }

@@ -15,6 +15,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
 import com.linjun.SendPacket;
+import com.linjun.projectsend.utils.DeviceUtils;
 import com.linjun.projectsend.utils.Utils;
 
 import java.util.Timer;
@@ -39,15 +40,9 @@ public class LocationService extends Service implements AMapLocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mTimer = new Timer();
-        TimerTask task = new TimerTask(){
-            @Override
-            public void run() {
+
                 initLocation();
-                locationClient.startLocation();
-            }};
-        mTimer.scheduleAtFixedRate(task, 0, 30*1000);
-//        flags = START_STICKY;
+        startLocation();
         return START_STICKY;
     }
 
@@ -64,7 +59,7 @@ public class LocationService extends Service implements AMapLocationListener {
     public void onDestroy() {
         stopLocation();
         destroyLocation();
-        super.onDestroy();
+        Log.i(TAG, "onDestroy: 服务关闭");
     }
 
     @Nullable
@@ -113,16 +108,20 @@ public class LocationService extends Service implements AMapLocationListener {
         //定位之后的回调时间
         sb.append("回调时间: " + Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
         if (location.getErrorCode() == 0) {
+            sb.append("dsfsafasd");
             Message msg = new Message();
-            msg.obj=sb.toString();
+            Log.i(TAG, "onLocationChanged: 服务没有正常关闭");
+//            msg.obj="发送数据成功"+Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n";
+            msg.obj=sb;
             msg.what = 1;
             MainActivity.handler.sendMessage(msg);
             Message msg1 = new Message();
             SendPacket sendPacket=new SendPacket();
-            sendPacket.setJingdu(location.getLongitude());
+            sendPacket.setJingdu(Math.abs(location.getLongitude()));
             sendPacket.setWeidu(location.getLatitude());
             sendPacket.setSpeed(location.getSpeed());
 //            sendPacket.setBytes();
+            sendPacket.setDeviceid(DeviceUtils.getPhoneBrand()+DeviceUtils.getPhoneModel());
             sendPacket.setSend_time(System.currentTimeMillis());
             msg1.obj=sendPacket;
             msg1.what = 2;

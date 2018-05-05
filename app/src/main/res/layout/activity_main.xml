@@ -7,13 +7,8 @@
     android:background="@color/main_backgorund"
     tools:context="com.linjun.projectsend.ui.main.MainActivity"
     android:orientation="vertical">
-
-
-
     <include layout="@layout/include_hrm_counter"
         android:id="@+id/include" />
-
-
     <com.txusballesteros.SnakeView
         android:id="@+id/snake"
         android:layout_width="match_parent"
@@ -40,6 +35,8 @@
         android:id="@+id/tv_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:singleLine="false"
         />
     </ScrollView>
 </LinearLayout>

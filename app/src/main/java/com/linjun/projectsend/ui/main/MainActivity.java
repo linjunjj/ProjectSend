@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import cc.lison.pojo.EchoMessage;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -73,15 +72,13 @@ public class MainActivity extends BaseActivity {
             tvResult.append("开始启动定位服务...\n");
             Intent intet1 = new Intent(MainActivity.this, LocationService.class);
             startService(intet1);
-
         } else {
             btnStart.setText("开始");
             tvResult.setText(tvResult.getText()+"停止定位...\n");
             tvResult.setText(tvResult.getText()+"正在关闭服务\n");
-            Intent intet1 = new Intent(MainActivity.this, LocationService.class);
-            stopService(intet1);
+            Intent intet2 = new Intent(MainActivity.this, LocationService.class);
+            stopService(intet2);
             tvResult.setText(tvResult.getText()+"关闭服务成功\n");
-
         }
     }
 
@@ -104,21 +101,16 @@ public class MainActivity extends BaseActivity {
                     channelFuture.addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                            handler.obtainMessage(0x00).sendToTarget();
+                            handler.obtainMessage(0).sendToTarget();
                         }
                     });
-
                     channel.closeFuture().sync();
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }.start();
     }
-
-
-
 
 
     class MyHandler extends Handler {
@@ -128,7 +120,7 @@ public class MainActivity extends BaseActivity {
             switch (msg.what) {
                 case 0:
                     String hello1 = new String("I'm in!");
-                    EchoMessage em1 = new EchoMessage();
+                    SendPacket em1 = new SendPacket();
                     byte[] b1 = hello1.getBytes();
                     em1.setBytes(b1);
                     em1.setSumCountPackage(b1.length);
@@ -142,12 +134,10 @@ public class MainActivity extends BaseActivity {
                     break;
                 case 2:
                     Log.i("sww22ww", msg.obj.toString());
-                    SendPacket em = new SendPacket();
-                    em=(SendPacket) msg.obj;
+                    SendPacket  em=(SendPacket) msg.obj;
                     channel.writeAndFlush(em);
                     break;
                 case 3:
-
                     break;
 
             }
