@@ -110,9 +110,8 @@ public class LocationService extends Service implements AMapLocationListener {
         if (location.getErrorCode() == 0) {
             sb.append("dsfsafasd");
             Message msg = new Message();
-            Log.i(TAG, "onLocationChanged: 服务没有正常关闭");
-//            msg.obj="发送数据成功"+Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n";
-            msg.obj=sb;
+            msg.obj="发送数据成功"+Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n";
+//            msg.obj=sb;
             msg.what = 1;
             MainActivity.handler.sendMessage(msg);
             Message msg1 = new Message();
@@ -120,7 +119,6 @@ public class LocationService extends Service implements AMapLocationListener {
             sendPacket.setJingdu(Math.abs(location.getLongitude()));
             sendPacket.setWeidu(location.getLatitude());
             sendPacket.setSpeed(location.getSpeed());
-//            sendPacket.setBytes();
             sendPacket.setDeviceid(DeviceUtils.getPhoneBrand()+DeviceUtils.getPhoneModel());
             sendPacket.setSend_time(System.currentTimeMillis());
             msg1.obj=sendPacket;

@@ -54,7 +54,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
         handler=new MyHandler();
-        connect(handler);
 
     }
 
@@ -68,6 +67,8 @@ public class MainActivity extends BaseActivity {
     public void onViewClicked() {
         if (btnStart.getText().equals("开始")) {
             btnStart.setText("停止");
+               tvResult.setText("正在连接服务器");
+              connect(handler);
             tvResult.setText("");
             tvResult.append("开始启动定位服务...\n");
             Intent intet1 = new Intent(MainActivity.this, LocationService.class);
@@ -81,15 +82,12 @@ public class MainActivity extends BaseActivity {
             tvResult.setText(tvResult.getText()+"关闭服务成功\n");
         }
     }
-
-
   private   void connect(final Handler handler) {
         new Thread() {
             @Override
             public void run() {
                 try {
                     group = new NioEventLoopGroup();
-
                     Bootstrap bootstrap = new Bootstrap();
                     bootstrap.group(group);
                     bootstrap.channel(NioSocketChannel.class);
@@ -106,12 +104,12 @@ public class MainActivity extends BaseActivity {
                     });
                     channel.closeFuture().sync();
                 } catch (Exception e) {
+               group.shutdownGracefully();
                     e.printStackTrace();
                 }
             }
         }.start();
     }
-
 
     class MyHandler extends Handler {
 
